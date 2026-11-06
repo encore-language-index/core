@@ -12,3 +12,7 @@ pub import refrain::result
 pub import refrain::reflect
 pub import refrain::testing
 pub import refrain::vec
+
+pub import refrain::dict
+pub import refrain::set
+pub import refrain::num
