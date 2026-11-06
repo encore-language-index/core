@@ -1,0 +1,9 @@
+[project]
+name = "core"
+version = "0.0.0"
+repository = "https://github.com/encore-language-index/core"
+encore = ">=0.1.14"
+description = "Low-level core library for Encore language"
+readme = "README.md"
+licence = "MIT"
+dependencies = []
