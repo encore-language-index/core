@@ -15,12 +15,19 @@ internal implementation comes from the target kit's `platform` refrain.
 | `core::option` | `Option[T]`, `Some(T)`, `None`, `is_some`, `is_none`, `unwrap_or`, `and`, `or`, `xor`, `flatten` |
 | `core::result` | `Result[T, E]`, `Ok(T)`, `Err(E)`, `is_ok`, `is_err`, `unwrap_or`, `unwrap_err_or` |
 | `core::vec` | `Vec[T]`, `VecIter[T]`, `new`, `with_capacity`, `singleton`, `len`, `capacity`, `is_empty`, `reserve`, `push`, `set`, `get`, `first`, `last`, `clear`, `pop`, `extend`, `iter` |
+| `core::dict` | `Hashable`, insertion-ordered `Dict[K, V]`, `new`, `with_capacity`, `reserve`, `insert`, `get`, `remove`, `items`, `keys`, `values`, `clone` |
+| `core::set` | Insertion-ordered `Set[T]`, `new`, `with_capacity`, `insert`, `contains`, `remove`, `values`, `clone` |
+| `core::num` | `Integer`, `ParseIntError`, checked `parse[T]` and `parse_radix[T]` |
 | `core::iter` | `Iterator[T]`, `IntoIterator[T, Iter]`, `Range`, `Enumerate`, `range`, `range_inclusive`, `enumerate` |
 | `core::fmt` | `Debug` for primitive values, `Option`, `Result` and `Vec` |
 | `core::ops` | Operator traits for arithmetic, comparison, bitwise operators and `ContextManager` |
 | `core::cast` | `Numeric`, `Cast[T]` for numeric casts |
 | `core::panic` | `panic(message)` |
 | `core::testing` | `assert`, `fail` for executable tests |
+
+`Dict` and `Set` copies share their collection storage and mutations; `clone`
+creates independent collection storage. Impossible capacities panic before
+bucket growth or allocation rather than wrapping the requested size.
 
 ## Common Patterns
 

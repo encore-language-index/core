@@ -2,7 +2,30 @@
 
 import core::ops::Eq
 import core::option::Option
+import core::panic::panic
 import core::vec::Vec
+
+fn __dict_required_capacity(count: usize, additional: usize) -> usize {
+    let required = count + additional
+    if required < count {
+        panic("Dict capacity overflow")
+        ret 0_usize
+    }
+    ret required
+}
+
+fn __dict_bucket_count(current: usize, required: usize) -> usize {
+    let mut size = current
+    while size / 2 < required {
+        let doubled = size * 2
+        if doubled <= size {
+            panic("Dict capacity overflow")
+            ret 0_usize
+        }
+        size = doubled
+    }
+    ret size
+}
 
 /// Equal keys must have equal hashes, stable while stored in a collection.
 pub trait Hashable {
@@ -116,11 +139,8 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
         ret Self::with_capacity(16)
     }
     pub fn with_capacity(capacity: usize) -> Self {
+        let size = __dict_bucket_count(8_usize, capacity)
         let mut buckets = Vec[usize]::new()
-        let mut size = 8_usize
-        while size / 2 < capacity {
-            size *= 2
-        }
         for _ in 0..size {
             buckets.push(0)
         }
@@ -142,13 +162,11 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
         ret self.entries.capacity()
     }
     pub fn reserve(self: mut Self, additional: usize) ->() {
+        let required = __dict_required_capacity(self.len(), additional)
+        let size = __dict_bucket_count(self.buckets.len(), required)
         self.entries.reserve(additional)
         self.hashes.reserve(additional)
         self.next.reserve(additional)
-        let mut size = self.buckets.len()
-        while size / 2 < self.len() + additional {
-            size *= 2
-        }
         if size != self.buckets.len() {
             self.rehash(size)
         }
@@ -235,15 +253,17 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
                 }
             }
         }
-        if self.len() + 1 > self.buckets.len() / 2 {
-            self.rehash(self.buckets.len() * 2)
+        let required = __dict_required_capacity(self.len(), 1_usize)
+        let size = __dict_bucket_count(self.buckets.len(), required)
+        if size != self.buckets.len() {
+            self.rehash(size)
         }
         let bucket = self.bucket(hash)
         self.entries.push(Option::Some((key, value)))
         self.hashes.push(hash)
         self.next.push(self.buckets.get(bucket).unwrap_or(0))
         self.buckets.set(bucket, self.entries.len())
-        self.count.set(0, self.len() + 1)
+        self.count.set(0, required)
         ret Option::None
     }
     pub fn remove(self: mut Self, key: K) -> Option[V] {
