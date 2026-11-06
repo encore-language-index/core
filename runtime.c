@@ -217,18 +217,7 @@ void encore_box_drop(void *payload) {
     if (atomic_fetch_sub_explicit(&header->meta.refs, 1, memory_order_acq_rel) == 1) free(header);
 }
 
-typedef struct {
-    _Atomic size_t ref_count;
-    size_t len;
-    char data[];
-} encore_str_object;
-
-typedef struct {
-    encore_str_object *object;
-} encore_str;
-
-encore_str encore_empty_str(void);
-encore_str encore_from_owned_buffer(char *buffer, size_t len);
+#include "runtime_string.h"
 
 static struct {
     _Atomic size_t ref_count;
@@ -250,7 +239,7 @@ size_t encore_str_size(encore_str value) {
     return value.object->len;
 }
 
-encore_str encore_str_from_buffer(const char *buffer, size_t len) {
+encore_str encore_str_from_buffer(const void *buffer, size_t len) {
     if (buffer == NULL || len == 0) return encore_empty_str();
     encore_str_object *object = malloc(sizeof(encore_str_object) + len + 1);
     if (object == NULL) return encore_empty_str();
