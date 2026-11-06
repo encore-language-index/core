@@ -4,7 +4,10 @@ import core::option::Option
 import core::result::Result
 
 pub enum ParseIntError {
-    Empty InvalidRadix InvalidDigit Overflow
+    Empty
+    InvalidRadix
+    InvalidDigit
+    Overflow
 }
 
 /// Implemented by integer types accepted by parse and parse_radix.

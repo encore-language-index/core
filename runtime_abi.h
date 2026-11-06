@@ -9,7 +9,7 @@ size_t encore_str_size(encore_str value);
 encore_str encore_empty_str(void);
 encore_str encore_from_owned_buffer(char *buffer, size_t len);
 encore_str encore_from_cstr_copy(const char *value);
-encore_str encore_str_from_buffer(const char *buffer, size_t len);
+encore_str encore_str_from_buffer(const void *buffer, size_t len);
 encore_str encore_str_from_codepoint(size_t value);
 void *encore_str_from_cstr(const char *value);
 void encore_str_retain(encore_str value);

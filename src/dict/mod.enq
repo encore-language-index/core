@@ -44,46 +44,55 @@ impl Hashable for u8 {
         ret self as u64
     }
 }
+
 impl Hashable for u16 {
     pub fn hash(self: u16) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for u32 {
     pub fn hash(self: u32) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for u64 {
     pub fn hash(self: u64) -> u64 {
         ret self
     }
 }
+
 impl Hashable for usize {
     pub fn hash(self: usize) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for i8 {
     pub fn hash(self: i8) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for i16 {
     pub fn hash(self: i16) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for i32 {
     pub fn hash(self: i32) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for i64 {
     pub fn hash(self: i64) -> u64 {
         ret self as u64
     }
 }
+
 impl Hashable for isize {
     pub fn hash(self: isize) -> u64 {
         ret self as u64
@@ -109,8 +118,12 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
     pub fn with_capacity(capacity: usize) -> Self {
         let mut buckets = Vec[usize]::new()
         let mut size = 8_usize
-        while size / 2 < capacity { size *= 2 }
-        for _ in 0..size { buckets.push(0) }
+        while size / 2 < capacity {
+            size *= 2
+        }
+        for _ in 0..size {
+            buckets.push(0)
+        }
         let mut count = Vec[usize]::new()
         count.push(0)
         ret Self {
@@ -119,26 +132,38 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
             Vec[usize]::with_capacity(capacity), buckets, count
         }
     }
-    pub fn len(self: Self) -> usize { ret self.count.get(0).unwrap_or(0) }
-    pub fn is_empty(self: Self) -> bool { ret self.len() == 0 }
-    pub fn capacity(self: Self) -> usize { ret self.entries.capacity() }
+    pub fn len(self: Self) -> usize {
+        ret self.count.get(0).unwrap_or(0)
+    }
+    pub fn is_empty(self: Self) -> bool {
+        ret self.len() == 0
+    }
+    pub fn capacity(self: Self) -> usize {
+        ret self.entries.capacity()
+    }
     pub fn reserve(self: mut Self, additional: usize) ->() {
         self.entries.reserve(additional)
         self.hashes.reserve(additional)
         self.next.reserve(additional)
         let mut size = self.buckets.len()
-        while size / 2 < self.len() + additional { size *= 2 }
-        if size != self.buckets.len() { self.rehash(size) }
+        while size / 2 < self.len() + additional {
+            size *= 2
+        }
+        if size != self.buckets.len() {
+            self.rehash(size)
+        }
     }
     pub fn clear(self: mut Self) ->() {
         self.entries.clear()
         self.hashes.clear()
         self.next.clear()
-        for i in 0..self.buckets.len() { self.buckets.set(i, 0) }
+        for i in 0..self.buckets.len() {
+            self.buckets.set(i, 0)
+        }
         self.count.set(0, 0)
     }
     fn bucket(self: Self, hash: u64) -> usize {
-        ret (hash % (self.buckets.len() as u64)) as usize
+        ret(hash %(self.buckets.len() as u64)) as usize
     }
     fn find_hashed(self: Self, key: K, hash: u64) -> usize {
         let mut link = self.buckets.get(self.bucket(hash)).unwrap_or(0)
@@ -146,8 +171,13 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
             let i = link - 1
             if self.hashes.get(i).unwrap_or(0) == hash {
                 match self.entries.get(i).unwrap_or(Option::None) {
-                    Option::Some(entry) => { if entry.0 == key { ret link } }
-                    Option::None => {}
+                    Option::Some(entry) => {
+                        if entry.0 == key {
+                            ret link
+                        }
+                    }
+                    Option::None => {
+                    }
                 }
             }
             link = self.next.get(i).unwrap_or(0)
@@ -156,7 +186,9 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
     }
     fn rehash(self: mut Self, size: usize) ->() {
         self.buckets.clear()
-        for _ in 0..size { self.buckets.push(0) }
+        for _ in 0..size {
+            self.buckets.push(0)
+        }
         for i in 0..self.entries.len() {
             if self.entries.get(i).unwrap_or(Option::None).is_some() {
                 let bucket = self.bucket(self.hashes.get(i).unwrap_or(0))
@@ -168,14 +200,19 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
     fn compact(self: mut Self) ->() {
         let items = self.items()
         self.clear()
-        for entry in items { self.insert(entry.0, entry.1) }
+        for entry in items {
+            self.insert(entry.0, entry.1)
+        }
     }
     pub fn get(self: Self, key: K) -> Option[V] {
         let link = self.find_hashed(key, key.hash())
         if link != 0 {
             match self.entries.get(link - 1).unwrap_or(Option::None) {
-                Option::Some(entry) => { ret Option::Some(entry.1) }
-                Option::None => {}
+                Option::Some(entry) => {
+                    ret Option::Some(entry.1)
+                }
+                Option::None => {
+                }
             }
         }
         ret Option::None
@@ -191,8 +228,11 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
             let old = self.entries.get(link - 1).unwrap_or(Option::None)
             self.entries.set(link - 1, Option::Some((key, value)))
             match old {
-                Option::Some(entry) => { ret Option::Some(entry.1) }
-                Option::None => {}
+                Option::Some(entry) => {
+                    ret Option::Some(entry.1)
+                }
+                Option::None => {
+                }
             }
         }
         if self.len() + 1 > self.buckets.len() / 2 {
@@ -218,8 +258,11 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
                 match self.entries.get(i).unwrap_or(Option::None) {
                     Option::Some(entry) => {
                         if entry.0 == key {
-                            if previous == 0 { self.buckets.set(bucket, next) }
-                            else { self.next.set(previous - 1, next) }
+                            if previous == 0 {
+                                self.buckets.set(bucket, next)
+                            } else {
+                                self.next.set(previous - 1, next)
+                            }
                             self.entries.set(i, Option::None)
                             self.count.set(0, self.len() - 1)
                             if self.entries.len() > 32 && self.entries.len() / 2 > self.len() {
@@ -228,7 +271,8 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
                             ret Option::Some(entry.1)
                         }
                     }
-                    Option::None => {}
+                    Option::None => {
+                    }
                 }
             }
             previous = link
@@ -240,8 +284,11 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
         let mut out = Vec[(K, V)]::with_capacity(self.len())
         for slot in self.entries {
             match slot {
-                Option::Some(entry) => { out.push(entry) }
-                Option::None => {}
+                Option::Some(entry) => {
+                    out.push(entry)
+                }
+                Option::None => {
+                }
             }
         }
         ret out
@@ -249,20 +296,34 @@ impl[K: Hashable + Eq, V] for Dict[K, V] {
     pub fn keys(self: Self) -> Vec[K] {
         let mut out = Vec[K]::with_capacity(self.len())
         for slot in self.entries {
-            match slot { Option::Some(entry) => { out.push(entry.0) } Option::None => {} }
+            match slot {
+                Option::Some(entry) => {
+                    out.push(entry.0)
+                }
+                Option::None => {
+                }
+            }
         }
         ret out
     }
     pub fn values(self: Self) -> Vec[V] {
         let mut out = Vec[V]::with_capacity(self.len())
         for slot in self.entries {
-            match slot { Option::Some(entry) => { out.push(entry.1) } Option::None => {} }
+            match slot {
+                Option::Some(entry) => {
+                    out.push(entry.1)
+                }
+                Option::None => {
+                }
+            }
         }
         ret out
     }
     pub fn clone(self: Self) -> Self {
         let mut out = Self::with_capacity(self.len())
-        for entry in self.items() { out.insert(entry.0, entry.1) }
+        for entry in self.items() {
+            out.insert(entry.0, entry.1)
+        }
         ret out
     }
 }

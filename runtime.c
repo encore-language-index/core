@@ -239,7 +239,7 @@ size_t encore_str_size(encore_str value) {
     return value.object->len;
 }
 
-encore_str encore_str_from_buffer(const char *buffer, size_t len) {
+encore_str encore_str_from_buffer(const void *buffer, size_t len) {
     if (buffer == NULL || len == 0) return encore_empty_str();
     encore_str_object *object = malloc(sizeof(encore_str_object) + len + 1);
     if (object == NULL) return encore_empty_str();
