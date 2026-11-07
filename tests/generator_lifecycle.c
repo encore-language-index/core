@@ -12,6 +12,7 @@ void encore_node_free_released(void *);
 void encore_node_add_edge(void *, void *);
 void encore_node_replace_edge(void *, void *, void *);
 size_t encore_node_debug_live_count(void);
+size_t encore_node_debug_edge_count(void *);
 void encore_generator_register(uintptr_t, uintptr_t);
 void encore_generator_enter(uintptr_t);
 void encore_generator_leave(uintptr_t);
@@ -96,8 +97,11 @@ int main(int argc, char **argv) {
     value = create(); connect(owner, value); release(value);
     assert(closed_count == 5);
     assert(encore_node_release(owner));
-    encore_node_replace_edge(owner, value, NULL); owner->child = NULL;
+    /* Shallow drops detach their edges through release; edge mutation APIs
+     * deliberately reject owners which are already finalizing. */
+    owner->child = NULL;
     release(value);
+    assert(encore_node_debug_edge_count(owner) == 0);
     assert(closed_count == 5);
     encore_node_free_released(owner);
     assert(closed_count == 6);
